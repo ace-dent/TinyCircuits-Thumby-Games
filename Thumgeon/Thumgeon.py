@@ -218,7 +218,7 @@ class dungeonTile:
                 y = 0
                 signMsg = str(self.tiledata, 'ascii')
                 for line in signMsg.split("\n"):
-                    thumby.display.drawText(str(line, 'ascii'), 0, y, 1)
+                    thumby.display.drawText(line, 0, y, 1)
                     y = y + 8
                 thumby.display.update()
 
@@ -1108,7 +1108,7 @@ def generateRoom(room):
                 room.getTile(4, 2).tiletype = 4
                 room.getTile(4, 2).tiledata = signMessages[randint(0, len(signMessages) - 1)]
 
-        # Each room has a 33% chance of having a broken or basic-tier peice of loot in it
+        # Each room has a 33% chance of having a broken or basic-tier piece of loot in it
         if(randint(0, 2) == 0):
             pos = getRandomFreePosition(room)
             item = dungeonTile(0)
@@ -1379,14 +1379,9 @@ while(True):
     # Make the starting room
     currentRoom = dungeonRoom()
     currentRoom.tiles[2*9+2] = dungeonTile(4)
-    currentRoom.tiles[2*9+2].tiledata.append("Welcome!")
-    currentRoom.tiles[2*9+2].tiledata.append("")
-    currentRoom.tiles[2*9+2].tiledata.append("B to act")
-    currentRoom.tiles[2*9+2].tiledata.append("A for inv")
-    currentRoom.tiles[2*9+2].tiledata.append("have fun!")
+    currentRoom.tiles[2*9+2].tiledata = bytes("Welcome!\n\nB to act\nA for inv\n - have fun!", 'ascii')
     generateRoom(currentRoom)
     ensureExit(currentRoom)
-    #print("generated " + str(roomno) + " rooms")
 
     # Make the player
     player = playerobj("testname")
