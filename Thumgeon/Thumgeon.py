@@ -22,8 +22,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
-import thumby
 from machine import freq, Pin
+freq(250_000_000)
+
+import thumby
 from time import ticks_ms
 from random import seed as random_seed, randint
 from gc import enable as gc_enable, collect as gc_collect
@@ -61,33 +63,150 @@ shopSpr = bytearray([0x80, 0xe4, 0x6a, 0xd2, 0x40, 0xfe, 0x48, 0xfe, 0x40, 0x5c,
            0xff, 0xea, 0xf5, 0xea, 0xf5, 0xea, 0xe5, 0x30, 0xae, 0xf9, 0x3f, 0xf9, 0xae, 0x30, 0xe0, 0xff])
 
 signMessages = (
-    ("I wonder", "if anyone", "will see", "this..."),
-    ("I've been", "down here", "for DAYS"),
-    ("Who keeps", "leaving", "weapons", "down", "here?"),
-    ("Always", "remember:", "", "finders", "keepers!"),
-    ("man, I", "had so", "much", "gold...", "...had..."),
-    ("Hang in", "there!", "", "- M.W."),
-    ("Happy", "crawling,", "fellow", "knight."),
-    ("Only 8", "gold for", "an ULTRA", "SWORD!?"),
-    ("Why do", "all these", "potions", "taste so", "terrible?"),
-    ("Am I the", "only", "person", "down", "here?"),
-    ("This food", "could be", "centuries", "old..."),
-    ("It smells", "like an", "ancient", "closet"),
-    ("How many", "knights", "have been", "down", "here?"),
-    ("Who took", "my epic", "bow!?"),
-    ("Who keeps", "leaving", "rocks in", "my shirt?"),
-    ("Man, I'm", "tired."),
-    ("How do", "skeletons", "carry gp", "without", "pockets?"),
-    ("HELP!", "WIZARD", "TURNED", "ME INTO", "A SIGN"),
-    ("I just", "keep", "going", "deeper"),
-    ("SCORPIONS", "", "SCORPIONS", "in a", "DUNGEON"),
-    ("Sure is", "drafty", "for a", "dungeon."),
-    ("Cool", "place!", "too many", "rooms.", "7 / 10"),
-    ("SIX", "broken", "bows and", "not ONE", "snack."),
-    ("Some dude", "named Taco", "modded this.", "", "Weird name."),
-    ("Pro tip:", "", "hug blobs", "for free", "gold!"),
-    ("Not sure", "what the", "food item", "actually", "is..."),
-    )
+    (
+        bytes("I wonder", 'ascii'),
+        bytes("if anyone", 'ascii'),
+        bytes("will see", 'ascii'),
+        bytes("this...", 'ascii'),
+    ),
+    (
+        bytes("I've been", 'ascii'),
+        bytes("down here", 'ascii'),
+        bytes("for DAYS!", 'ascii'),
+    ),
+    (
+        bytes("Who keeps", 'ascii'),
+        bytes("leaving", 'ascii'),
+        bytes("weapons", 'ascii'),
+        bytes("down", 'ascii'),
+        bytes("here?", 'ascii'),
+    ),
+    (
+        bytes("Always", 'ascii'),
+        bytes("remember:", 'ascii'),
+        bytes("finders", 'ascii'),
+        bytes("keepers!", 'ascii'),
+    ),
+    (
+        bytes("Man, I", 'ascii'),
+        bytes("had so", 'ascii'),
+        bytes("much", 'ascii'),
+        bytes("gold...", 'ascii'),
+        bytes("...had...", 'ascii'),
+    ),
+    (
+        bytes("Hang in", 'ascii'),
+        bytes("there!", 'ascii'),
+        bytes("- M.W.", 'ascii'),
+    ),
+    (
+        bytes("Happy", 'ascii'),
+        bytes("crawling,", 'ascii'),
+        bytes("fellow", 'ascii'),
+        bytes("knight.", 'ascii'),
+    ),
+    (
+        bytes("Only 8", 'ascii'),
+        bytes("gold for", 'ascii'),
+        bytes("an ULTRA", 'ascii'),
+        bytes("SWORD!?", 'ascii'),
+    ),
+    (
+        bytes("Why do", 'ascii'),
+        bytes("all these", 'ascii'),
+        bytes("potions", 'ascii'),
+        bytes("taste so", 'ascii'),
+        bytes("terrible?", 'ascii'),
+    ),
+    (
+        bytes("Am I the", 'ascii'),
+        bytes("only", 'ascii'),
+        bytes("person", 'ascii'),
+        bytes("down", 'ascii'),
+        bytes("here?", 'ascii'),
+    ),
+    (
+        bytes("This food", 'ascii'),
+        bytes("could be", 'ascii'),
+        bytes("centuries", 'ascii'),
+        bytes("old...", 'ascii'),
+    ),
+    (
+        bytes("It smells", 'ascii'),
+        bytes("like an", 'ascii'),
+        bytes("ancient", 'ascii'),
+        bytes("closet.", 'ascii'),
+    ),
+    (
+        bytes("How many", 'ascii'),
+        bytes("knights", 'ascii'),
+        bytes("have been", 'ascii'),
+        bytes("down", 'ascii'),
+        bytes("here?", 'ascii'),
+    ),
+    (
+        bytes("Who took", 'ascii'),
+        bytes("my epic", 'ascii'),
+        bytes("bow!?", 'ascii'),
+    ),
+    (
+        bytes("Who keeps", 'ascii'),
+        bytes("leaving", 'ascii'),
+        bytes("rocks in", 'ascii'),
+        bytes("my shirt?", 'ascii'),
+    ),
+    (
+        bytes("Man, I'm", 'ascii'),
+        bytes("tired.", 'ascii'),
+    ),
+    (
+        bytes("How do", 'ascii'),
+        bytes("skeletons", 'ascii'),
+        bytes("carry GP", 'ascii'),
+        bytes("without", 'ascii'),
+        bytes("pockets?", 'ascii'),
+    ),
+    (
+        bytes("HELP!", 'ascii'),
+        bytes("WIZARD", 'ascii'),
+        bytes("TURNED", 'ascii'),
+        bytes("ME INTO", 'ascii'),
+        bytes("A SIGN", 'ascii'),
+    ),
+    (
+        bytes("I just", 'ascii'),
+        bytes("keep", 'ascii'),
+        bytes("going", 'ascii'),
+        bytes("deeper.", 'ascii'),
+    ),
+    (
+        bytes("SCORPIONS", 'ascii'),
+        bytes("", 'ascii'),
+        bytes("SCORPIONS", 'ascii'),
+        bytes("in a", 'ascii'),
+        bytes("DUNGEON!", 'ascii'),
+    ),
+    (
+        bytes("Sure is", 'ascii'),
+        bytes("drafty", 'ascii'),
+        bytes("for a", 'ascii'),
+        bytes("dungeon.", 'ascii'),
+    ),
+    (
+        bytes("Cool", 'ascii'),
+        bytes("place!", 'ascii'),
+        bytes("Too many", 'ascii'),
+        bytes("rooms.", 'ascii'),
+        bytes("7 / 10", 'ascii'),
+    ),
+    (
+        bytes("SIX", 'ascii'),
+        bytes("broken", 'ascii'),
+        bytes("bows and", 'ascii'),
+        bytes("not ONE", 'ascii'),
+        bytes("snack.", 'ascii'),
+    ),
+)
 
 # ...And a list of them
 
@@ -218,7 +337,7 @@ class dungeonTile:
                 thumby.display.fill(0)
                 y = 0
                 for line in self.tiledata:
-                    thumby.display.drawText(line, 0, y, 1)
+                    thumby.display.drawText(str(line, 'ascii'), 0, y, 1)
                     y = y + 8
                 thumby.display.update()
 
