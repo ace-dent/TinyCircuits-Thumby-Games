@@ -1,11 +1,11 @@
-# Thumgeon.
+# Thumgeon
 
 # Explore an endless, tough-as-nails pseudorandom dungeon
 # crawler. Collect items, potions, and weapons, kill monsters
 # with aforementioned loot -- and stay alive!
 
 # Written by Mason Watmough for TinyCircuits.
-# Last edited 6-Sep-2023
+# Last edited XX-Sep-2023
 
 '''
     This program is free software: you can redistribute it and/or modify
@@ -23,17 +23,14 @@
 '''
 
 import thumby
-import time
-import random
-import gc
 from machine import freq, Pin
+from time import ticks_ms
+from random import seed as random_seed, randint
+from gc import enable as gc_enable, collect as gc_collect
 
 freq(48_000_000)
 
-gc.enable()
-
-WIDTH = 72
-HEIGHT = 40
+gc_enable()
 
 # Sprite data for game objects
 
@@ -87,6 +84,9 @@ signMessages = (
     ("Sure is", "drafty", "for a", "dungeon."),
     ("Cool", "place!", "too many", "rooms.", "7 / 10"),
     ("SIX", "broken", "bows and", "not ONE", "snack."),
+    ("Some dude", "named Taco", "modded this.", "", "Weird name."),
+    ("Pro tip:", "", "hug blobs", "for free", "gold!"),
+    ("Not sure", "what the", "food item", "actually", "is..."),
     )
 
 # ...And a list of them
@@ -202,15 +202,13 @@ class dungeonTile:
             exitSpawned = False
             floorNo = floorNo + 1
             currentRoom.tiles.clear()
-            #print(str(gc.mem_free()) + " bytes free")
-            gc.collect()
-            #print(str(gc.mem_free()) + " bytes free after collection")
+            gc_collect()
             currentRoom = dungeonRoom()
             generateRoom(currentRoom)
             ensureExit(currentRoom)
             while(currentRoom.getTile(player.tilex, player.tiley).tiletype != 0):
-                player.tilex = random.randint(1, 7)
-                player.tiley = random.randint(1, 3)
+                player.tilex = randint(1, 7)
+                player.tiley = randint(1, 3)
         elif(self.tiletype == 4):
             # Tile is a sign
             if(len(self.tiledata) == 0):
@@ -231,7 +229,13 @@ class dungeonTile:
 
         elif(self.tiletype == 6):
             # Tile is a chest
-            curMsg = "a chest!"
+
+            chestGold = randint(1, 15)
+            player.gp += chestGold
+            curMsg = "got gp!"
+            self.tiledata.clear()
+            self.tiletype = 0
+
 
         elif(self.tiletype == 7):
             # Tile is an item
@@ -250,27 +254,27 @@ class dungeonTile:
             # Tile is a monster
             if(player.helditem == -1):
                 # Attack with hand for 1-3 dmg
-                dmg = random.randint(1, 3)
+                dmg = randint(1, 3)
                 self.tiledata[1] = self.tiledata[1] - dmg
                 curMsg = "hit " + str(dmg) + "pts"
                 if(self.tiledata[1] <= 0):
                     # Monster is dead
                     self.tiledata.clear()
                     self.tiletype = 0
-                    player.gp = player.gp + random.randint(1, 5) + floorNo
+                    player.gp = player.gp + randint(1, 5) + floorNo
             else:
                 # Attack with held item
                 if(player.mp >= manacost(player.inventory[player.helditem])):
                     player.mp = player.mp - manacost(player.inventory[player.helditem])
                     dmgrng = itemdmg(player.inventory[player.helditem])
-                    dmg = random.randint(dmgrng[0], dmgrng[1])
+                    dmg = randint(dmgrng[0], dmgrng[1])
                     self.tiledata[1] = self.tiledata[1] - dmg
                     curMsg = "hit " + str(dmg) + "pts"
                     if(self.tiledata[1] <= 0):
                         # Monster is dead
                         self.tiledata.clear()
                         self.tiletype = 0
-                        player.gp = player.gp + random.randint(1, 5) + floorNo
+                        player.gp = player.gp + randint(1, 5) + floorNo
                     if(player.inventory[player.helditem] == "bsc lch" or player.inventory[player.helditem] == "adv lch" or player.inventory[player.helditem] == "ult lch"):
                         # Leech spell, add damage to health
                         player.hp = player.hp + dmg
@@ -299,14 +303,14 @@ class dungeonTile:
                             player.hp = player.maxhp
                 else:
                     # Couldn't cast, punch instead
-                    dmg = random.randint(1, 3)
+                    dmg = randint(1, 3)
                     curMsg = "hit " + str(dmg) + "pts"
                     self.tiledata[1] = self.tiledata[1] - dmg
                     if(self.tiledata[1] <= 0):
                         # Monster is dead
                         self.tiledata.clear()
                         self.tiletype = 0
-                        player.gp = player.gp + random.randint(1, 5) + floorNo
+                        player.gp = player.gp + randint(1, 5) + floorNo
         elif(self.tiletype == 9):
             # Shop tile, open shop inventory
             actpos = 0
@@ -425,14 +429,14 @@ class dungeonTile:
                 if(currentRoom.getTile(x, y).tiletype == 8):
                     # Hit monster, deal damage
                     dmgrng = itemdmg(player.inventory[player.helditem])
-                    dmg = random.randint(dmgrng[0], dmgrng[1])
+                    dmg = randint(dmgrng[0], dmgrng[1])
                     currentRoom.getTile(x, y).tiledata[1] = currentRoom.getTile(x, y).tiledata[1] - dmg
                     curMsg = "hit " + str(dmg) + "pts"
                     if(currentRoom.getTile(x, y).tiledata[1] <= 0):
                         # Monster is dead
                         currentRoom.getTile(x, y).tiledata.clear()
                         currentRoom.getTile(x, y).tiletype = 0
-                        player.gp = player.gp + random.randint(1, 5) + floorNo
+                        player.gp = player.gp + randint(1, 5) + floorNo
                 else:
                     curMsg = "missed."
 
@@ -465,14 +469,14 @@ class dungeonTile:
                     if(currentRoom.getTile(x, y).tiletype == 8 and player.inventory[player.helditem] != "bsc heal" and player.inventory[player.helditem] != "adv heal" and player.inventory[player.helditem] != "ult heal"):
                         # Hit monster, deal damage
                         dmgrng = itemdmg(player.inventory[player.helditem])
-                        dmg = random.randint(dmgrng[0], dmgrng[1])
+                        dmg = randint(dmgrng[0], dmgrng[1])
                         currentRoom.getTile(x, y).tiledata[1] = currentRoom.getTile(x, y).tiledata[1] - dmg
                         curMsg = "hit " + str(dmg) + "pts"
                         if(currentRoom.getTile(x, y).tiledata[1] <= 0):
                             # Monster is dead
                             currentRoom.getTile(x, y).tiledata.clear()
                             currentRoom.getTile(x, y).tiletype = 0
-                            player.gp = player.gp + random.randint(1, 5) + floorNo
+                            player.gp = player.gp + randint(1, 5) + floorNo
 
                         if(player.inventory[player.helditem] == "bsc cnfs"):
                             currentRoom.getTile(x, y).tiledata[2] = currentRoom.getTile(x, y).tiledata[2] + 3
@@ -939,7 +943,7 @@ class dungeonRoom:
 
                 elif(tile.tiletype == 8):
                     # Monster tile
-                    if(time.ticks_ms() % 1000 > 500):
+                    if(ticks_ms() % 1000 > 500):
                         thumby.display.blit(monsterSprites[int(tile.tiledata[0])], x*8, y*8, 8, 8, -1, 0, 0)
                     else:
                         thumby.display.blit(monsterSprites[int(tile.tiledata[0])], x*8, y*8-1, 8, 8, -1, 0, 0)
@@ -972,16 +976,16 @@ class playerobj:
         # 2 is down
         # 3 is left
 
-random.seed()
+random_seed()
 
 def getRandomFreePosition(room):
-    px = random.randint(1, 7)
-    py = random.randint(1, 3)
+    px = randint(1, 7)
+    py = randint(1, 3)
 
     # Check that tile is empty and there are no doors this could block
     while(room.getTile(px, py).tiletype != 0 or ((px==4 and py==1) or (px==4 and py==3) or (px==1 and py==2) or (px==7 and py==2))):
-        px = random.randint(1, 7)
-        py = random.randint(1, 3)
+        px = randint(1, 7)
+        py = randint(1, 3)
     return [px, py]
 
 floorNo = 1
@@ -1003,9 +1007,9 @@ def generateRoom(room):
         roomno = roomno + 1
         # Generate up to 3 more rooms
         for k in range(3):
-            if(random.randint(0, k) == 0):
-                if(random.randint(0, 1) == 0):
-                    if(random.randint(0, 1) == 0 and room.getTile(4, 0).tiletype != 2):
+            if(randint(0, k) == 0):
+                if(randint(0, 1) == 0):
+                    if(randint(0, 1) == 0 and room.getTile(4, 0).tiletype != 2):
                         # Put door on north wall
                         room.getTile(4, 0).tiletype = 2
                         room.getTile(4, 1).tiledata.clear()
@@ -1036,7 +1040,7 @@ def generateRoom(room):
                         room.getTile(4, 4).tiledata[0].getTile(4, 0).tiledata.append(3)
                         generateRoom(room.getTile(4, 4).tiledata[0])
                 else:
-                    if(random.randint(0, 1) == 0 and room.getTile(0, 2).tiletype != 2):
+                    if(randint(0, 1) == 0 and room.getTile(0, 2).tiletype != 2):
                         # Put door on west wall
                         room.getTile(0, 2).tiletype = 2
                         room.getTile(1, 2).tiledata.clear()
@@ -1066,18 +1070,18 @@ def generateRoom(room):
                         room.getTile(8, 2).tiledata[0].getTile(0, 2).tiledata.append(7)
                         room.getTile(8, 2).tiledata[0].getTile(0, 2).tiledata.append(2)
                         generateRoom(room.getTile(8, 2).tiledata[0])
-        '''
-        #Each room has a 20% chance of having a chest in it
-        if(random.randint(0, 4) == 0):
-            px = random.randint(2,6)
-            py = random.randint(1,3)
+
+        #Each room has a 10% chance of having a chest in it
+        if(randint(0, 9) == 0):
+            px = randint(2,6)
+            py = randint(1,3)
             while(room.getTile(px, py).tiletype != 0):
-                px = random.randint(2,6)
-                py = random.randint(1,3)
+                px = randint(2,6)
+                py = randint(1,3)
             room.getTile(px, py).tiletype = 6
-        '''
+
         # Each room has (roomno) / maxrooms chance to have the exit in it
-        if(random.randint(roomno, maxrooms) == roomno and not exitSpawned):
+        if(randint(roomno, maxrooms) == roomno and not exitSpawned):
             pos = getRandomFreePosition(room)
             room.getTile(pos[0], pos[1]).tiletype = 3
             #print("Spawned exit")
@@ -1085,39 +1089,39 @@ def generateRoom(room):
 
 
         # Each room has a 10% chance of having a shopkeep
-        if(random.randint(0, 9) == 0):
+        if(randint(0, 9) == 0):
             room.hasShop = True
             room.getTile(2, 1).tiletype = 9
             room.getTile(3, 1).tiletype = 9
             room.getTile(2, 2).tiletype = 9
             room.getTile(3, 2).tiletype = 9
-            for i in range(random.randint(2, 4)):
-                room.shopInv.append(t1Items[random.randint(0, len(t1Items)-1)])
-            for i in range(random.randint(1, 3)):
-                room.shopInv.append(t2Items[random.randint(0, len(t2Items)-1)])
-            for i in range(random.randint(0, 2)):
-                room.shopInv.append(t3Items[random.randint(0, len(t3Items)-1)])
+            for i in range(randint(2, 4)):
+                room.shopInv.append(t1Items[randint(0, len(t1Items)-1)])
+            for i in range(randint(1, 3)):
+                room.shopInv.append(t2Items[randint(0, len(t2Items)-1)])
+            for i in range(randint(0, 2)):
+                room.shopInv.append(t3Items[randint(0, len(t3Items)-1)])
 
         # Each room has a 10% chance of having a sign
-        if(random.randint(0, 9) == 0):
+        if(randint(0, 9) == 0):
             if room.getTile(4, 2).tiletype == 0:
                 room.getTile(4, 2).tiletype = 4
-                room.getTile(4, 2).tiledata = signMessages[random.randint(0, len(signMessages) - 1)]
+                room.getTile(4, 2).tiledata = signMessages[randint(0, len(signMessages) - 1)]
 
         # Each room has a 33% chance of having a broken or basic-tier peice of loot in it
-        if(random.randint(0, 2) == 0):
+        if(randint(0, 2) == 0):
             pos = getRandomFreePosition(room)
             item = dungeonTile(0)
-            sel = random.randint(0, 5)
+            sel = randint(0, 5)
             if(sel == 0):
                 # Put a sword there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("basicswd")
                 else:
                     item = itemtile("brknswd")
             elif(sel == 1):
                 # Put a bow there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("basicbow")
                 else:
                     item = itemtile("brknbow")
@@ -1134,16 +1138,16 @@ def generateRoom(room):
                     4: "bsc tlpt",
                     5: "bsc heal",
                 }
-                item = itemtile(spells.get(random.randint(0, 5), "??? tome"))
+                item = itemtile(spells.get(randint(0, 5), "??? tome"))
             elif(sel == 4):
                 # Put a potion there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("sml hpot")
                 else:
                     item = itemtile("sml mpot")
             elif(sel == 5):
                 # Put some clothing there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("shirt")
                 else:
                     item = itemtile("pants")
@@ -1151,19 +1155,19 @@ def generateRoom(room):
             room.getTile(pos[0], pos[1]).tiledata = item.tiledata.copy()
 
         # Each room has a 5% chance of having a normal or good-tier peice of loot in it
-        if(random.randint(0, 19) == 0):
+        if(randint(0, 19) == 0):
             pos = getRandomFreePosition(room)
             item = dungeonTile(0)
-            sel = random.randint(0, 4)
+            sel = randint(0, 4)
             if(sel == 0):
                 # Put a sword there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("goodswd")
                 else:
                     item = itemtile("swd")
             elif(sel == 1):
                 # Put a bow there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("goodbow")
                 else:
                     item = itemtile("bow")
@@ -1177,36 +1181,36 @@ def generateRoom(room):
                     4: "adv tlpt",
                     5: "adv heal",
                 }
-                item = itemtile(spells.get(random.randint(0, 5), "??? tome"))
+                item = itemtile(spells.get(randint(0, 5), "??? tome"))
             elif(sel == 3):
                 # Put a potion there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("big hpot")
                 else:
                     item = itemtile("big mpot")
             elif(sel == 4):
                 # put a hpup or mpup there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("hpup")
                 else:
                     item = itemtile("mpup")
             room.getTile(pos[0], pos[1]).tiletype = item.tiletype
             room.getTile(pos[0], pos[1]).tiledata = item.tiledata.copy()
 
-        # Each room has a 1% chance of having an epic or ultra-tier peice of loot in it
-        if(random.randint(0, 99) == 0):
+        # Each room has a 1% chance of having an epic or ultra-tier piece of loot in it
+        if(randint(0, 99) == 0):
             pos = getRandomFreePosition(room)
             item = dungeonTile(0)
-            sel = random.randint(0, 2)
+            sel = randint(0, 2)
             if(sel == 0):
                 # Put a sword there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("ultraswd")
                 else:
                     item = itemtile("epicswd")
             elif(sel == 1):
                 # Put a bow there
-                if(random.randint(0, 1) == 0):
+                if(randint(0, 1) == 0):
                     item = itemtile("ultrabow")
                 else:
                     item = itemtile("epicbow")
@@ -1220,23 +1224,23 @@ def generateRoom(room):
                     4: "ult tlpt",
                     5: "ult heal",
                 }
-                item = itemtile(spells.get(random.randint(0, 5), "??? tome"))
+                item = itemtile(spells.get(randint(0, 5), "??? tome"))
             room.getTile(pos[0], pos[1]).tiletype = item.tiletype
             room.getTile(pos[0], pos[1]).tiledata = item.tiledata.copy()
 
         # Each room has a 50% chance of having a monster in it
-        if(random.randint(0, 1) == 0):
+        if(randint(0, 1) == 0):
             pos = getRandomFreePosition(room)
             room.getTile(pos[0], pos[1]).tiletype = 8
-            room.getTile(pos[0], pos[1]).tiledata.append(random.randint(0, len(monsterSprites) - 1))
-            room.getTile(pos[0], pos[1]).tiledata.append(random.randint(10, 15) + 2 * floorNo)
+            room.getTile(pos[0], pos[1]).tiledata.append(randint(0, len(monsterSprites) - 1))
+            room.getTile(pos[0], pos[1]).tiledata.append(randint(10, 15) + 2 * floorNo)
             room.getTile(pos[0], pos[1]).tiledata.append(1)
         # Each room has a 20% chance of having another monster in it
-        if(random.randint(0, 4) == 0):
+        if(randint(0, 4) == 0):
             pos = getRandomFreePosition(room)
             room.getTile(pos[0], pos[1]).tiletype = 8
-            room.getTile(pos[0], pos[1]).tiledata.append(random.randint(0, len(monsterSprites) - 1))
-            room.getTile(pos[0], pos[1]).tiledata.append(random.randint(10, 15) + 2 * floorNo)
+            room.getTile(pos[0], pos[1]).tiledata.append(randint(0, len(monsterSprites) - 1))
+            room.getTile(pos[0], pos[1]).tiledata.append(randint(10, 15) + 2 * floorNo)
             room.getTile(pos[0], pos[1]).tiledata.append(1)
 turnCounter = 0
 
@@ -1255,12 +1259,17 @@ def drawGame():
     if(curMsg != ""):
         thumby.display.drawFilledRectangle(0, 32, len(curMsg)*8, 8, 1)
         thumby.display.drawText(curMsg, 0, 32, 0)
+
+        thumby.display.drawFilledRectangle(56, 32, 32, 8, 1)
+        thumby.display.drawText(str(floorNo)+"f", 56, 32, 0)
+
     thumby.display.drawFilledRectangle(0, 0, 32, 8, 1)
     thumby.display.drawText(str(player.hp), 0, 0, 0)
     thumby.display.drawText("HP", 16, 0, 0)
     thumby.display.drawFilledRectangle(40, 0, 32, 8, 1)
     thumby.display.drawText(str(player.mp), 40, 0, 0)
     thumby.display.drawText("MP", 56, 0, 0)
+
     thumby.display.update()
 
 def updateMonsters():
@@ -1277,7 +1286,7 @@ def updateMonsters():
                         global lastHit
                         # Monster is within range, attack the player
                         # Make a random attack damage
-                        dmg = random.randint(1, 5) + random.randint(0, floorNo)
+                        dmg = randint(1, 5) + randint(0, floorNo)
                         # Handle armor
                         if(player.shirtitem != -1):
                             dmg = dmg - 2
@@ -1331,7 +1340,7 @@ thumby.display.drawText("@", 32, 16, 1)
 thumby.display.update()
 getcharinputNew()
 while(swAstate == 1 or swBstate == 1):
-    if(time.ticks_ms() % 1000 < 500):
+    if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
     else:
@@ -1341,7 +1350,7 @@ while(swAstate == 1 or swBstate == 1):
     getcharinputNew()
     pass
 while(swAstate == 0 and swBstate == 0):
-    if(time.ticks_ms() % 1000 < 500):
+    if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
     else:
@@ -1351,7 +1360,7 @@ while(swAstate == 0 and swBstate == 0):
     getcharinputNew()
     pass
 while(swAstate == 1 or swBstate == 1):
-    if(time.ticks_ms() % 1000 < 500):
+    if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
     else:
@@ -1668,7 +1677,7 @@ while(True):
     thumby.display.update()
 
     currentRoom.tiles.clear()
-    gc.collect()
+    gc_collect()
 
     while(getcharinputNew() == ' '):
         pass
@@ -1698,6 +1707,6 @@ while(True):
     if(selpos == 0):
         del currentRoom
         del player
-        gc.collect()
+        gc_collect()
     else:
         thumby.reset() # Exit game to main menu
