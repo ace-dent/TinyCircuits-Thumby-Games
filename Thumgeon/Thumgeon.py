@@ -63,149 +63,29 @@ shopSpr = bytearray([0x80, 0xe4, 0x6a, 0xd2, 0x40, 0xfe, 0x48, 0xfe, 0x40, 0x5c,
            0xff, 0xea, 0xf5, 0xea, 0xf5, 0xea, 0xe5, 0x30, 0xae, 0xf9, 0x3f, 0xf9, 0xae, 0x30, 0xe0, 0xff])
 
 signMessages = (
-    (
-        bytes("I wonder", 'ascii'),
-        bytes("if anyone", 'ascii'),
-        bytes("will see", 'ascii'),
-        bytes("this...", 'ascii'),
-    ),
-    (
-        bytes("I've been", 'ascii'),
-        bytes("down here", 'ascii'),
-        bytes("for DAYS!", 'ascii'),
-    ),
-    (
-        bytes("Who keeps", 'ascii'),
-        bytes("leaving", 'ascii'),
-        bytes("weapons", 'ascii'),
-        bytes("down", 'ascii'),
-        bytes("here?", 'ascii'),
-    ),
-    (
-        bytes("Always", 'ascii'),
-        bytes("remember:", 'ascii'),
-        bytes("finders", 'ascii'),
-        bytes("keepers!", 'ascii'),
-    ),
-    (
-        bytes("Man, I", 'ascii'),
-        bytes("had so", 'ascii'),
-        bytes("much", 'ascii'),
-        bytes("gold...", 'ascii'),
-        bytes("...had...", 'ascii'),
-    ),
-    (
-        bytes("Hang in", 'ascii'),
-        bytes("there!", 'ascii'),
-        bytes("- M.W.", 'ascii'),
-    ),
-    (
-        bytes("Happy", 'ascii'),
-        bytes("crawling,", 'ascii'),
-        bytes("fellow", 'ascii'),
-        bytes("knight.", 'ascii'),
-    ),
-    (
-        bytes("Only 8", 'ascii'),
-        bytes("gold for", 'ascii'),
-        bytes("an ULTRA", 'ascii'),
-        bytes("SWORD!?", 'ascii'),
-    ),
-    (
-        bytes("Why do", 'ascii'),
-        bytes("all these", 'ascii'),
-        bytes("potions", 'ascii'),
-        bytes("taste so", 'ascii'),
-        bytes("terrible?", 'ascii'),
-    ),
-    (
-        bytes("Am I the", 'ascii'),
-        bytes("only", 'ascii'),
-        bytes("person", 'ascii'),
-        bytes("down", 'ascii'),
-        bytes("here?", 'ascii'),
-    ),
-    (
-        bytes("This food", 'ascii'),
-        bytes("could be", 'ascii'),
-        bytes("centuries", 'ascii'),
-        bytes("old...", 'ascii'),
-    ),
-    (
-        bytes("It smells", 'ascii'),
-        bytes("like an", 'ascii'),
-        bytes("ancient", 'ascii'),
-        bytes("closet.", 'ascii'),
-    ),
-    (
-        bytes("How many", 'ascii'),
-        bytes("knights", 'ascii'),
-        bytes("have been", 'ascii'),
-        bytes("down", 'ascii'),
-        bytes("here?", 'ascii'),
-    ),
-    (
-        bytes("Who took", 'ascii'),
-        bytes("my epic", 'ascii'),
-        bytes("bow!?", 'ascii'),
-    ),
-    (
-        bytes("Who keeps", 'ascii'),
-        bytes("leaving", 'ascii'),
-        bytes("rocks in", 'ascii'),
-        bytes("my shirt?", 'ascii'),
-    ),
-    (
-        bytes("Man, I'm", 'ascii'),
-        bytes("tired.", 'ascii'),
-    ),
-    (
-        bytes("How do", 'ascii'),
-        bytes("skeletons", 'ascii'),
-        bytes("carry GP", 'ascii'),
-        bytes("without", 'ascii'),
-        bytes("pockets?", 'ascii'),
-    ),
-    (
-        bytes("HELP!", 'ascii'),
-        bytes("WIZARD", 'ascii'),
-        bytes("TURNED", 'ascii'),
-        bytes("ME INTO", 'ascii'),
-        bytes("A SIGN", 'ascii'),
-    ),
-    (
-        bytes("I just", 'ascii'),
-        bytes("keep", 'ascii'),
-        bytes("going", 'ascii'),
-        bytes("deeper.", 'ascii'),
-    ),
-    (
-        bytes("SCORPIONS", 'ascii'),
-        bytes("", 'ascii'),
-        bytes("SCORPIONS", 'ascii'),
-        bytes("in a", 'ascii'),
-        bytes("DUNGEON!", 'ascii'),
-    ),
-    (
-        bytes("Sure is", 'ascii'),
-        bytes("drafty", 'ascii'),
-        bytes("for a", 'ascii'),
-        bytes("dungeon.", 'ascii'),
-    ),
-    (
-        bytes("Cool", 'ascii'),
-        bytes("place!", 'ascii'),
-        bytes("Too many", 'ascii'),
-        bytes("rooms.", 'ascii'),
-        bytes("7 / 10", 'ascii'),
-    ),
-    (
-        bytes("SIX", 'ascii'),
-        bytes("broken", 'ascii'),
-        bytes("bows and", 'ascii'),
-        bytes("not ONE", 'ascii'),
-        bytes("snack.", 'ascii'),
-    ),
+    bytes("I wonder\nif anyone\nwill see\nthis...?", 'ascii'),
+    bytes("I've been\ndown here\nfor DAYS!", 'ascii'),
+    bytes("Who keeps\nleaving\nweapons\ndown\nhere?", 'ascii'),
+    bytes("Always\nremember:\nfinders\nkeepers!", 'ascii'),
+    bytes("Man, I\nhad so\nmuch\ngold...\n...had...", 'ascii'),
+    bytes("Hang in\nthere!\n- M.W.", 'ascii'),
+    bytes("Happy\ncrawling,\nfellow\nknight.", 'ascii'),
+    bytes("Only 8\ngold for\nan ULTRA\nSWORD!?", 'ascii'),
+    bytes("Why do\nall these\npotions\ntaste so\nterrible?", 'ascii'),
+    bytes("Am I the\nonly\nperson\ndown\nhere?", 'ascii'),
+    bytes("This food\ncould be\ncenturies\nold...", 'ascii'),
+    bytes("It smells\nlike an\nancient\ncloset.", 'ascii'),
+    bytes("How many\nknights\nhave been\ndown\nhere?", 'ascii'),
+    bytes("Who took\nmy epic\nbow!?", 'ascii'),
+    bytes("Who keeps\nleaving\nrocks in\nmy shirt?", 'ascii'),
+    bytes("Man...\nI'm\ntired.", 'ascii'),
+    bytes("How do\nskeletons\ncarry GP\nwithout\npockets?", 'ascii'),
+    bytes("HELP!\nWIZARD\nTURNED\nME INTO\nA SIGN", 'ascii'),
+    bytes("I just\nkeep\ngoing\ndeeper.", 'ascii'),
+    bytes("SCORPIONS\n\nSCORPIONS\nin a\nDUNGEON!", 'ascii'),
+    bytes("Sure is\ndrafty\nfor a\ndungeon.", 'ascii'),
+    bytes("Cool\nplace!\nToo many\nrooms.\n7 / 10", 'ascii'),
+    bytes("SIX\nbroken\nbows and\nnot ONE\nsnack.", 'ascii'),
 )
 
 # ...And a list of them
@@ -336,7 +216,8 @@ class dungeonTile:
                 # Draw the sign's text
                 thumby.display.fill(0)
                 y = 0
-                for line in self.tiledata:
+                signMsg = str(self.tiledata, 'ascii')
+                for line in signMsg.split("\n"):
                     thumby.display.drawText(str(line, 'ascii'), 0, y, 1)
                     y = y + 8
                 thumby.display.update()
