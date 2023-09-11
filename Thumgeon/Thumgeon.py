@@ -52,12 +52,16 @@ chestSpr = bytes([0xfc, 0x46, 0x7e, 0x4a, 0x52, 0x7e, 0x46, 0xfc])
 hpupSpr = bytes([0x7c, 0x10, 0x60, 0x00, 0xf0, 0x52, 0x27, 0x02])
 mpupSpr = bytes([0x78, 0x10, 0x20, 0x10, 0x78, 0x02, 0x07, 0x02])
 
+itemSprites = (swordSpr, bowSpr, potSpr, keySpr, snackSpr, pantsSpr, shirtSpr, magicSpr, hpupSpr, mpupSpr)
+
 blobSpr = bytes([0x60, 0x90, 0xf8, 0x98, 0xf8, 0xf0, 0xe0, 0xc0])
 spiritSpr = bytes([0x00, 0x0c, 0x12, 0x3e, 0x72, 0x4c, 0x20, 0x00])
 arachSpr = bytes([0x60, 0xd0, 0xf0, 0x74, 0x72, 0xe4, 0x78, 0x00])
 skeleSpr = bytes([0x30, 0x08, 0xd6, 0x7f, 0xd5, 0x0a, 0x30, 0x00])
 wizardSpr = bytes([0x90, 0xcc, 0xfe, 0xf7, 0xcc, 0x10, 0x7a, 0x04])
 tempestSpr = bytes([0x00, 0x14, 0x54, 0x5c, 0xaa, 0xae, 0x2a, 0x0c])
+
+monsterSprites = (blobSpr, spiritSpr, arachSpr, skeleSpr, wizardSpr, tempestSpr)
 
 shopSpr = bytes([0x80, 0xe4, 0x6a, 0xd2, 0x40, 0xfe, 0x48, 0xfe, 0x40, 0x5c, 0x62, 0x5c, 0x40, 0x7e, 0xca, 0x84,
            0xff, 0xea, 0xf5, 0xea, 0xf5, 0xea, 0xe5, 0x30, 0xae, 0xf9, 0x3f, 0xf9, 0xae, 0x30, 0xe0, 0xff])
@@ -87,20 +91,6 @@ signMessages = (
     bytes("Cool\nplace!\nToo many\nrooms.\n7 / 10", 'ascii'),
     bytes("SIX\nbroken\nbows and\nnot ONE\nsnack.", 'ascii'),
 )
-
-# ...And a list of them
-
-itemSprites = (swordSpr, bowSpr, potSpr, keySpr, snackSpr, pantsSpr, shirtSpr, magicSpr, hpupSpr, mpupSpr)
-
-monsterSprites = (blobSpr, spiritSpr, arachSpr, skeleSpr, wizardSpr, tempestSpr)
-
-# Blocking input function
-def getcharinputNew():
-    if(thumby.buttonB.justPressed()):
-        return '1'
-    if(thumby.inputJustPressed()):
-        return 'X'
-    return ' '
 
 curMsg = ""
 lastHit = ""
@@ -173,7 +163,7 @@ class dungeonTile:
                 thumby.display.update()
 
                 # Wait for the player to finish reading
-                while(getcharinputNew() == ' '):
+                while(not thumby.inputPressed()):
                     pass
                 curMsg = ""
 
@@ -288,7 +278,7 @@ class dungeonTile:
                         thumby.display.drawText("buy", 40, 0, 0)
                 thumby.display.drawText(str(player.gp)+"g", 64 - len(str(player.gp)+"g")*8, 32, 1)
                 thumby.display.update()
-                while(getcharinputNew() == ' '):
+                while(not thumby.inputPressed()):
                     pass
                 if(thumby.buttonU.pressed()):
                     selpos = max(0, selpos-1)
@@ -336,7 +326,7 @@ class dungeonTile:
                                 thumby.display.drawText("Not", 0, 24, 1)
                                 thumby.display.drawText("enough", 0, 32, 1)
                                 thumby.display.update()
-                                while(getcharinputNew() == ' '):
+                                while(not thumby.inputPressed()):
                                     pass
 
         elif(player.helditem != -1):
@@ -1269,7 +1259,6 @@ thumby.display.fill(0)
 thumby.display.drawText("Thumgeon", 11, 0, 1)
 thumby.display.drawText("@", 32, 16, 1)
 thumby.display.update()
-getcharinputNew()
 while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
     if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
@@ -1278,7 +1267,6 @@ while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
         thumby.display.drawText("Press A/B", 9, 32, 0)
     thumby.display.update()
-    getcharinputNew()
     pass
 while(not thumby.buttonB.pressed() and not thumby.buttonA.pressed()):
     if(ticks_ms() % 1000 < 500):
@@ -1288,7 +1276,6 @@ while(not thumby.buttonB.pressed() and not thumby.buttonA.pressed()):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
         thumby.display.drawText("Press A/B", 9, 32, 0)
     thumby.display.update()
-    getcharinputNew()
     pass
 while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
     if(ticks_ms() % 1000 < 500):
@@ -1298,7 +1285,6 @@ while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
         thumby.display.drawText("Press A/B", 9, 32, 0)
     thumby.display.update()
-    getcharinputNew()
     pass
 
 # Main game loop
@@ -1323,7 +1309,7 @@ while(True):
         currentRoom.getTile(player.tilex, player.tiley).tiletype = 5
         drawGame()
         # Get and handle input
-        if(getcharinputNew() != ' '):
+        if(thumby.inputPressed()):
 
             # Handle d-pad
             if(thumby.buttonU.pressed()):
@@ -1378,7 +1364,7 @@ while(True):
             elif(thumby.buttonA.pressed()):
                 curMsg = "act on?"
                 drawGame()
-                while(getcharinputNew() == ' '):
+                while(not thumby.inputPressed()):
                     pass
                 if(thumby.buttonU.pressed()):
                     player.facing = 0
@@ -1419,25 +1405,25 @@ while(True):
             elif(thumby.buttonB.pressed()):
                 selpos = 0
                 actpos = 1
-                while(getcharinputNew() != '1'):
+                while(not thumby.buttonB.justPressed()):
 
                     # Menu navigation
                     if(thumby.buttonU.pressed()):
                         selpos = selpos-1
                         while(thumby.buttonU.pressed()):
-                            getcharinputNew()
+                            pass
                     elif(thumby.buttonD.pressed()):
                         selpos = selpos+1
                         while(thumby.buttonD.pressed()):
-                            getcharinputNew()
+                            pass
                     if(thumby.buttonL.pressed()):
                         actpos = 0
                         while(thumby.buttonL.pressed()):
-                            getcharinputNew()
+                            pass
                     elif(thumby.buttonR.pressed()):
                         actpos = 1
                         while(thumby.buttonR.pressed()):
-                            getcharinputNew()
+                            pass
 
                     # Handle item selection
                     if(thumby.buttonA.pressed()):
@@ -1462,7 +1448,7 @@ while(True):
                             # Drop selected item
                             curMsg = "where?"
                             drawGame()
-                            while(getcharinputNew() == ' '):
+                            while(not thumby.inputPressed()):
                                 pass
                             tile = itemtile(player.inventory[selpos])
 
@@ -1585,12 +1571,12 @@ while(True):
     currentRoom.tiles.clear()
     gc_collect()
 
-    while(getcharinputNew() == ' '):
+    while(not thumby.inputPressed()):
         pass
 
     selpos = 0
     while(thumby.buttonA.pressed()):
-        getcharinputNew()
+        pass
 
     while(not thumby.buttonA.pressed()):
         thumby.display.fill(0)
@@ -1604,7 +1590,7 @@ while(True):
             thumby.display.drawFilledRectangle(40, 16, 16, 8, 1)
             thumby.display.drawText("no", 40, 16, 0)
         thumby.display.update()
-        getcharinputNew()
+
         if(thumby.buttonL.pressed()):
             selpos = 0
         if(thumby.buttonR.pressed()):
