@@ -22,7 +22,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import freq, Pin
+from machine import freq
 freq(250_000_000)
 
 import thumby
@@ -94,76 +94,34 @@ itemSprites = (swordSpr, bowSpr, potSpr, keySpr, snackSpr, pantsSpr, shirtSpr, m
 
 monsterSprites = (blobSpr, spiritSpr, arachSpr, skeleSpr, wizardSpr, tempestSpr)
 
-SW_L = 3
-SW_R = 5
-SW_U = 4
-SW_D = 6
-SW_A = 24
-SW_B = 27
-swL = Pin(SW_L, Pin.IN, Pin.PULL_UP)
-swR = Pin(SW_R, Pin.IN, Pin.PULL_UP)
-swU = Pin(SW_U, Pin.IN, Pin.PULL_UP)
-swD = Pin(SW_D, Pin.IN, Pin.PULL_UP)
-swA = Pin(SW_A, Pin.IN, Pin.PULL_UP)
-swB = Pin(SW_B, Pin.IN, Pin.PULL_UP)
-
-swLstate=1
-swRstate=1
-swUstate=1
-swDstate=1
-swAstate=1
-swBstate=1
-
 # Blocking input function
-
 def getcharinputNew():
-    global swLstate
-    global swRstate
-    global swUstate
-    global swDstate
-    global swAstate
-    global swBstate
-
-    if(swLstate==0 and swL.value() == 0):
-        swLstate=1
+    if(thumby.buttonL.justPressed()):
         return 'L'
-    elif(swLstate==1 and swL.value() == 1):
-        swLstate=0
-
-    if(swRstate==0 and swR.value() == 0):
-        swRstate=1
+    if(thumby.buttonR.justPressed()):
         return 'R'
-    elif(swRstate==1 and swR.value() == 1):
-        swRstate=0
-
-    if(swUstate==0 and swU.value() == 0):
-        swUstate=1
+    if(thumby.buttonU.justPressed()):
         return 'U'
-    elif(swUstate==1 and swU.value() == 1):
-        swUstate=0
-
-    if(swDstate==0 and swD.value() == 0):
-        swDstate=1
+    if(thumby.buttonD.justPressed()):
         return 'D'
-    elif(swDstate==1 and swD.value() == 1):
-        swDstate=0
-
-    if(swAstate==0 and swA.value() == 0):
-        swAstate=1
+    if(thumby.buttonB.justPressed()):
         return '1'
-    elif(swAstate==1 and swA.value() == 1):
-        swAstate=0
-
-    if(swBstate==0 and swB.value() == 0):
-        swBstate=1
+    if(thumby.buttonA.justPressed()):
         return '2'
-    elif(swBstate==1 and swB.value() == 1):
-        swBstate=0
-
     return ' '
 
 curMsg = ""
 lastHit = ""
+
+def addhp(n):
+    player.hp = player.hp + n
+    if(player.hp > player.maxhp):
+        player.hp = player.maxhp
+
+def addmp(n):
+    player.mp = player.mp + n
+    if(player.mp > player.maxmp):
+        player.mp = player.maxmp
 
 class dungeonTile:
     def __init__(self, ttype, *data):
@@ -277,9 +235,7 @@ class dungeonTile:
                         player.gp = player.gp + randint(1, 5) + floorNo
                     if(player.inventory[player.helditem] == "bsc lch" or player.inventory[player.helditem] == "adv lch" or player.inventory[player.helditem] == "ult lch"):
                         # Leech spell, add damage to health
-                        player.hp = player.hp + dmg
-                        if(player.hp > player.maxhp):
-                            player.hp = player.maxhp
+                        addhp(dmg)
                     # Check if we're using a confusion spell
                     if(player.inventory[player.helditem] == "bsc cnfs"):
                         self.tiledata[2] = self.tiledata[2] + 3
@@ -290,17 +246,11 @@ class dungeonTile:
 
                     # Check if we're using a healing spell
                     if(player.inventory[player.helditem] == "bsc heal"):
-                        player.hp = player.hp + 3
-                        if(player.hp > player.maxhp):
-                            player.hp = player.maxhp
+                        addhp(3)
                     elif(player.inventory[player.helditem] == "adv heal"):
-                        player.hp = player.hp + 5
-                        if(player.hp > player.maxhp):
-                            player.hp = player.maxhp
+                        addhp(5)
                     elif(player.inventory[player.helditem] == "ult heal"):
-                        player.hp = player.hp + 8
-                        if(player.hp > player.maxhp):
-                            player.hp = player.maxhp
+                        addhp(8)
                 else:
                     # Couldn't cast, punch instead
                     dmg = randint(1, 3)
@@ -316,7 +266,7 @@ class dungeonTile:
             actpos = 0
             selpos = 0
             inventory = 0
-            while(swAstate != 1):
+            while(not thumby.buttonB.pressed()):
                 thumby.display.fill(0)
                 if(inventory == 0):
                     if(len(player.inventory) > 0):
@@ -348,20 +298,20 @@ class dungeonTile:
                 thumby.display.update()
                 while(getcharinputNew() == ' '):
                     pass
-                if(swUstate == 1):
+                if(thumby.buttonU.pressed()):
                     selpos = max(0, selpos-1)
-                elif(swDstate == 1):
+                elif(thumby.buttonD.pressed()):
                     if(inventory == 0):
                         # In player inv
                         selpos = min(len(player.inventory)-1, selpos+1)
                     else:
                         # In shop inv
                         selpos = min(len(currentRoom.shopInv)-1, selpos+1)
-                elif(swLstate == 1):
+                elif(thumby.buttonL.pressed()):
                     actpos = 0
-                elif(swRstate == 1):
+                elif(thumby.buttonR.pressed()):
                     actpos = 1
-                elif(swBstate == 1):
+                elif(thumby.buttonA.pressed()):
                     # Player hit selection
                     if(actpos == 0):
                         # Player changed inventory
@@ -487,9 +437,7 @@ class dungeonTile:
 
                         if(player.inventory[player.helditem] == "bsc lch" or player.inventory[player.helditem] == "adv lch" or player.inventory[player.helditem] == "ult lch"):
                             # Leech spell, add damage to health
-                            player.hp = player.hp + dmg
-                            if(player.hp > player.maxhp):
-                                player.hp = player.maxhp
+                            addhp(dmg)
                     elif(player.inventory[player.helditem] != "bsc tlpt" and player.inventory[player.helditem] != "adv tlpt" and player.inventory[player.helditem] == "ult tlpt"):
                         curMsg = "missed."
                     if(player.helditem != -1 and player.inventory[player.helditem] == "bsc tlpt"):
@@ -559,33 +507,26 @@ class dungeonTile:
                                 dy = 7
                             player.tiley = player.tiley + dy
                     if(player.inventory[player.helditem] == "bsc heal"):
-                        player.hp = player.hp + 3
+                        addhp(3)
                     elif(player.inventory[player.helditem] == "adv heal"):
-                        player.hp = player.hp + 5
+                        addhp(5)
                     elif(player.inventory[player.helditem] == "ult heal"):
-                        player.hp = player.hp + 8
-
-                    if(player.hp > player.maxhp):
-                        player.hp = player.maxhp
+                        addhp(8)
                 else:
                     curMsg = "no mana!"
             elif(player.helditem != -1 and itemtile(player.inventory[player.helditem]).tiledata[0] == 2):
                 # Held item is a potion, drink it
                 curMsg = "yuck."
                 if(player.inventory[player.helditem] == "sml hpot"):
-                    player.hp = player.hp + 5
+                    addhp(5)
                 elif(player.inventory[player.helditem] == "sml mpot"):
-                    player.mp = player.mp + 5
+                    addmp(5)
                 elif(player.inventory[player.helditem] == "big hpot"):
-                    player.hp = player.hp + 8
+                    addhp(8)
                 elif(player.inventory[player.helditem] == "big mpot"):
-                    player.mp = player.mp + 8
+                    addmp(8)
                 player.wt = player.wt - itemwt(player.inventory[player.helditem])
 
-                if(player.hp > player.maxhp):
-                    player.hp = player.maxhp
-                if(player.mp > player.maxmp):
-                    player.mp = player.maxmp
                 player.inventory.pop(player.helditem)
                 player.helditem = -1
 
@@ -595,9 +536,7 @@ class dungeonTile:
                 player.inventory.pop(player.helditem)
                 player.helditem = -1
                 player.wt = player.wt - 1
-                player.hp = player.hp + 3
-                if(player.hp > player.maxhp):
-                    player.hp = player.maxhp
+                addhp(3)
 
             elif(player.helditem != -1 and player.inventory[player.helditem] == "hpup"):
                 # Held item is hpup
@@ -1339,7 +1278,7 @@ thumby.display.drawText("Thumgeon", 11, 0, 1)
 thumby.display.drawText("@", 32, 16, 1)
 thumby.display.update()
 getcharinputNew()
-while(swAstate == 1 or swBstate == 1):
+while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
     if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
@@ -1349,7 +1288,7 @@ while(swAstate == 1 or swBstate == 1):
     thumby.display.update()
     getcharinputNew()
     pass
-while(swAstate == 0 and swBstate == 0):
+while(not thumby.buttonB.pressed() and not thumby.buttonA.pressed()):
     if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
@@ -1359,7 +1298,7 @@ while(swAstate == 0 and swBstate == 0):
     thumby.display.update()
     getcharinputNew()
     pass
-while(swAstate == 1 or swBstate == 1):
+while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
     if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
@@ -1395,7 +1334,7 @@ while(True):
         if(getcharinputNew() != ' '):
 
             # Handle d-pad
-            if(swUstate == 1):
+            if(thumby.buttonU.pressed()):
                 player.facing = 0
                 if(currentRoom.getTile(player.tilex, player.tiley-1).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1405,11 +1344,9 @@ while(True):
                 updateMonsters()
                 if(turnCounter % 4 == 0):
                     turnCounter = 0
-                    player.mp = player.mp + 1
-                    if(player.mp > player.maxmp):
-                        player.mp = player.maxmp
+                    addmp(1)
                 turnCounter = turnCounter + 1
-            elif(swDstate == 1):
+            elif(thumby.buttonD.pressed()):
                 player.facing = 2
                 if(currentRoom.getTile(player.tilex, player.tiley+1).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1419,11 +1356,9 @@ while(True):
                 updateMonsters()
                 if(turnCounter % 4 == 0):
                     turnCounter = 0
-                    player.mp = player.mp + 1
-                    if(player.mp > player.maxmp):
-                        player.mp = player.maxmp
+                    addmp(1)
                 turnCounter = turnCounter + 1
-            elif(swLstate == 1):
+            elif(thumby.buttonL.pressed()):
                 player.facing = 3
                 if(currentRoom.getTile(player.tilex-1, player.tiley).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1433,11 +1368,9 @@ while(True):
                 updateMonsters()
                 if(turnCounter % 4 == 0):
                     turnCounter = 0
-                    player.mp = player.mp + 1
-                    if(player.mp > player.maxmp):
-                        player.mp = player.maxmp
+                    addmp(1)
                 turnCounter = turnCounter + 1
-            elif(swRstate == 1):
+            elif(thumby.buttonR.pressed()):
                 player.facing = 1
                 if(currentRoom.getTile(player.tilex+1, player.tiley).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1447,85 +1380,75 @@ while(True):
                 updateMonsters()
                 if(turnCounter % 4 == 0):
                     turnCounter = 0
-                    player.mp = player.mp + 1
-                    if(player.mp > player.maxmp):
-                        player.mp = player.maxmp
+                    addmp(1)
                 turnCounter = turnCounter + 1
             # Handle action button
-            elif(swBstate == 1):
+            elif(thumby.buttonA.pressed()):
                 curMsg = "act on?"
                 drawGame()
                 while(getcharinputNew() == ' '):
                     pass
-                if(swUstate == 1):
+                if(thumby.buttonU.pressed()):
                     player.facing = 0
                     currentRoom.getTile(player.tilex, player.tiley-1).actOn()
                     updateMonsters()
                     if(turnCounter % 4 == 0):
                         turnCounter = 0
-                        player.mp = player.mp + 1
-                        if(player.mp > player.maxmp):
-                            player.mp = player.maxmp
+                        addmp(1)
                     turnCounter = turnCounter + 1
-                elif(swDstate == 1):
+                elif(thumby.buttonD.pressed()):
                     player.facing = 2
                     currentRoom.getTile(player.tilex, player.tiley+1).actOn()
                     updateMonsters()
                     if(turnCounter % 4 == 0):
                         turnCounter = 0
-                        player.mp = player.mp + 1
-                        if(player.mp > player.maxmp):
-                            player.mp = player.maxmp
+                        addmp(1)
                     turnCounter = turnCounter + 1
-                elif(swLstate == 1):
+                elif(thumby.buttonL.pressed()):
                     player.facing = 3
                     currentRoom.getTile(player.tilex-1, player.tiley).actOn()
                     updateMonsters()
                     if(turnCounter % 4 == 0):
                         turnCounter = 0
-                        player.mp = player.mp + 1
-                        if(player.mp > player.maxmp):
-                            player.mp = player.maxmp
+                        addmp(1)
                     turnCounter = turnCounter + 1
-                elif(swRstate == 1):
+                elif(thumby.buttonR.pressed()):
                     player.facing = 1
                     currentRoom.getTile(player.tilex+1, player.tiley).actOn()
                     updateMonsters()
                     if(turnCounter % 4 == 0):
                         turnCounter = 0
-                        player.mp = player.mp + 1
-                        if(player.mp > player.maxmp):
-                            player.mp = player.maxmp
+                        addmp(1)
                     turnCounter = turnCounter + 1
-                elif(swBstate == 1):
+                elif(thumby.buttonA.pressed()):
                     curMsg = ""
 
             # Handle inventory button
-            elif(swAstate == 1):
+            elif(thumby.buttonB.pressed()):
                 selpos = 0
                 actpos = 1
                 while(getcharinputNew() != '1'):
 
                     # Menu navigation
-                    if(swUstate == 1):
+                    if(thumby.buttonU.pressed()):
                         selpos = selpos-1
-                        while(swUstate == 1):
+                        while(thumby.buttonU.pressed()):
                             getcharinputNew()
-                    elif(swDstate == 1):
+                    elif(thumby.buttonD.pressed()):
                         selpos = selpos+1
-                        while(swDstate == 1):
+                        while(thumby.buttonD.pressed()):
                             getcharinputNew()
-                    if(swLstate == 1):
+                    if(thumby.buttonL.pressed()):
                         actpos = 0
-                        while(swLstate == 1):
+                        while(thumby.buttonL.pressed()):
                             getcharinputNew()
-                    elif(swRstate == 1):
+                    elif(thumby.buttonR.pressed()):
                         actpos = 1
-                        while(swRstate == 1):
+                        while(thumby.buttonR.pressed()):
                             getcharinputNew()
 
                     # Handle item selection
-                    if(swBstate == 1):
+                    if(thumby.buttonA.pressed()):
 
                         if(actpos == 1):
                             # Equip selected item
@@ -1539,9 +1462,7 @@ while(True):
                             updateMonsters()
                             if(turnCounter % 4 == 0):
                                 turnCounter = 0
-                                player.mp = player.mp + 1
-                                if(player.mp > player.maxmp):
-                                    player.mp = player.maxmp
+                                addmp(1)
                             turnCounter = turnCounter + 1
                             break
 
@@ -1554,7 +1475,7 @@ while(True):
                             tile = itemtile(player.inventory[selpos])
 
                             # Try to drop the item where the player selected, or explain that something is in the way
-                            if(swUstate == 1):
+                            if(thumby.buttonU.pressed()):
                                 if(currentRoom.getTile(player.tilex, player.tiley-1).tiletype == 0):
                                     currentRoom.getTile(player.tilex, player.tiley-1).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex, player.tiley-1).tiledata = tile.tiledata
@@ -1563,7 +1484,7 @@ while(True):
                                     curMsg = "dropped"
                                 else:
                                     curMsg = "can't!"
-                            elif(swDstate == 1):
+                            elif(thumby.buttonD.pressed()):
                                 if(currentRoom.getTile(player.tilex, player.tiley+1).tiletype == 0):
                                     currentRoom.getTile(player.tilex, player.tiley+1).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex, player.tiley+1).tiledata = tile.tiledata
@@ -1572,7 +1493,7 @@ while(True):
                                     curMsg = "dropped"
                                 else:
                                     curMsg = "can't!"
-                            elif(swLstate == 1):
+                            elif(thumby.buttonL.pressed()):
                                 if(currentRoom.getTile(player.tilex-1, player.tiley).tiletype == 0):
                                     currentRoom.getTile(player.tilex-1, player.tiley).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex-1, player.tiley).tiledata = tile.tiledata
@@ -1581,7 +1502,7 @@ while(True):
                                     curMsg = "dropped"
                                 else:
                                     curMsg = "can't!"
-                            elif(swRstate == 1):
+                            elif(thumby.buttonR.pressed()):
                                 if(currentRoom.getTile(player.tilex+1, player.tiley).tiletype == 0):
                                     currentRoom.getTile(player.tilex+1, player.tiley).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex+1, player.tiley).tiledata = tile.tiledata
@@ -1601,9 +1522,7 @@ while(True):
                             updateMonsters()
                             if(turnCounter % 4 == 0):
                                 turnCounter = 0
-                                player.mp = player.mp + 1
-                                if(player.mp > player.maxmp):
-                                    player.mp = player.maxmp
+                                addmp(1)
                             turnCounter = turnCounter + 1
                             break
 
@@ -1678,10 +1597,10 @@ while(True):
         pass
 
     selpos = 0
-    while(swBstate == 1):
+    while(thumby.buttonA.pressed()):
         getcharinputNew()
 
-    while(swBstate != 1):
+    while(not thumby.buttonA.pressed()):
         thumby.display.fill(0)
         thumby.display.drawText("Restart?", 0, 8, 1)
         if(selpos == 0):
@@ -1694,9 +1613,9 @@ while(True):
             thumby.display.drawText("no", 40, 16, 0)
         thumby.display.update()
         getcharinputNew()
-        if(swLstate == 1):
+        if(thumby.buttonL.pressed()):
             selpos = 0
-        if(swRstate == 1):
+        if(thumby.buttonR.pressed()):
             selpos = 1
 
     if(selpos == 0):
