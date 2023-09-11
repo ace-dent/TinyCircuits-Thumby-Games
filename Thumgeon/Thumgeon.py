@@ -96,18 +96,10 @@ monsterSprites = (blobSpr, spiritSpr, arachSpr, skeleSpr, wizardSpr, tempestSpr)
 
 # Blocking input function
 def getcharinputNew():
-    if(thumby.buttonL.justPressed()):
-        return 'L'
-    if(thumby.buttonR.justPressed()):
-        return 'R'
-    if(thumby.buttonU.justPressed()):
-        return 'U'
-    if(thumby.buttonD.justPressed()):
-        return 'D'
     if(thumby.buttonB.justPressed()):
         return '1'
-    if(thumby.buttonA.justPressed()):
-        return '2'
+    if(thumby.inputJustPressed()):
+        return 'X'
     return ' '
 
 curMsg = ""
