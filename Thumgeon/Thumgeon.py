@@ -31,8 +31,8 @@ from random import seed as random_seed, randint
 from gc import enable as gc_enable, collect as gc_collect
 
 freq(48_000_000)
-
 gc_enable()
+thumby.display.setFPS(30)
 
 # Sprite data for game objects
 
@@ -248,7 +248,7 @@ class dungeonTile:
             actpos = 0
             selpos = 0
             inventory = 0
-            while(not thumby.buttonB.pressed()):
+            while(not thumby.buttonB.justPressed()):
                 thumby.display.fill(0)
                 if(inventory == 0):
                     if(len(player.inventory) > 0):
@@ -280,9 +280,9 @@ class dungeonTile:
                 thumby.display.update()
                 while(not thumby.inputPressed()):
                     pass
-                if(thumby.buttonU.pressed()):
+                if(thumby.buttonU.justPressed()):
                     selpos = max(0, selpos-1)
-                elif(thumby.buttonD.pressed()):
+                elif(thumby.buttonD.justPressed()):
                     if(inventory == 0):
                         # In player inv
                         selpos = min(len(player.inventory)-1, selpos+1)
@@ -293,7 +293,7 @@ class dungeonTile:
                     actpos = 0
                 elif(thumby.buttonR.pressed()):
                     actpos = 1
-                elif(thumby.buttonA.pressed()):
+                elif(thumby.buttonA.justPressed()):
                     # Player hit selection
                     if(actpos == 0):
                         # Player changed inventory
@@ -1255,29 +1255,12 @@ def updateMonsters():
                     currentRoom.getTile(x, y).tiledata[2] = currentRoom.getTile(x, y).tiledata[2] - 1
 
 
+# Title screen
 thumby.display.fill(0)
 thumby.display.drawText("Thumgeon", 11, 0, 1)
 thumby.display.drawText("@", 32, 16, 1)
 thumby.display.update()
-while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
-    if(ticks_ms() % 1000 < 500):
-        thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
-        thumby.display.drawText("Press A/B", 9, 32, 1)
-    else:
-        thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
-        thumby.display.drawText("Press A/B", 9, 32, 0)
-    thumby.display.update()
-    pass
-while(not thumby.buttonB.pressed() and not thumby.buttonA.pressed()):
-    if(ticks_ms() % 1000 < 500):
-        thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
-        thumby.display.drawText("Press A/B", 9, 32, 1)
-    else:
-        thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
-        thumby.display.drawText("Press A/B", 9, 32, 0)
-    thumby.display.update()
-    pass
-while(thumby.buttonB.pressed() or thumby.buttonA.pressed()):
+while(not thumby.actionJustPressed()):
     if(ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 9, 32, 1)
@@ -1309,10 +1292,11 @@ while(True):
         currentRoom.getTile(player.tilex, player.tiley).tiletype = 5
         drawGame()
         # Get and handle input
-        if(thumby.inputPressed()):
+        if(thumby.inputPressed()): #TODO Can this test be skipped?
+        thumby.display.update()
 
             # Handle d-pad
-            if(thumby.buttonU.pressed()):
+            if(thumby.buttonU.justPressed()):
                 player.facing = 0
                 if(currentRoom.getTile(player.tilex, player.tiley-1).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1324,7 +1308,7 @@ while(True):
                     turnCounter = 0
                     addmp(1)
                 turnCounter = turnCounter + 1
-            elif(thumby.buttonD.pressed()):
+            elif(thumby.buttonD.justPressed()):
                 player.facing = 2
                 if(currentRoom.getTile(player.tilex, player.tiley+1).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1336,7 +1320,7 @@ while(True):
                     turnCounter = 0
                     addmp(1)
                 turnCounter = turnCounter + 1
-            elif(thumby.buttonL.pressed()):
+            elif(thumby.buttonL.justPressed()):
                 player.facing = 3
                 if(currentRoom.getTile(player.tilex-1, player.tiley).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1348,7 +1332,7 @@ while(True):
                     turnCounter = 0
                     addmp(1)
                 turnCounter = turnCounter + 1
-            elif(thumby.buttonR.pressed()):
+            elif(thumby.buttonR.justPressed()):
                 player.facing = 1
                 if(currentRoom.getTile(player.tilex+1, player.tiley).tiletype == 0):
                     currentRoom.getTile(player.tilex, player.tiley).tiletype = 0
@@ -1361,12 +1345,12 @@ while(True):
                     addmp(1)
                 turnCounter = turnCounter + 1
             # Handle action button
-            elif(thumby.buttonA.pressed()):
+            elif(thumby.buttonA.justPressed()):
                 curMsg = "act on?"
                 drawGame()
                 while(not thumby.inputPressed()):
                     pass
-                if(thumby.buttonU.pressed()):
+                if(thumby.buttonU.justPressed()):
                     player.facing = 0
                     currentRoom.getTile(player.tilex, player.tiley-1).actOn()
                     updateMonsters()
@@ -1374,7 +1358,7 @@ while(True):
                         turnCounter = 0
                         addmp(1)
                     turnCounter = turnCounter + 1
-                elif(thumby.buttonD.pressed()):
+                elif(thumby.buttonD.justPressed()):
                     player.facing = 2
                     currentRoom.getTile(player.tilex, player.tiley+1).actOn()
                     updateMonsters()
@@ -1382,7 +1366,7 @@ while(True):
                         turnCounter = 0
                         addmp(1)
                     turnCounter = turnCounter + 1
-                elif(thumby.buttonL.pressed()):
+                elif(thumby.buttonL.justPressed()):
                     player.facing = 3
                     currentRoom.getTile(player.tilex-1, player.tiley).actOn()
                     updateMonsters()
@@ -1390,7 +1374,7 @@ while(True):
                         turnCounter = 0
                         addmp(1)
                     turnCounter = turnCounter + 1
-                elif(thumby.buttonR.pressed()):
+                elif(thumby.buttonR.justPressed()):
                     player.facing = 1
                     currentRoom.getTile(player.tilex+1, player.tiley).actOn()
                     updateMonsters()
@@ -1398,35 +1382,27 @@ while(True):
                         turnCounter = 0
                         addmp(1)
                     turnCounter = turnCounter + 1
-                elif(thumby.buttonA.pressed()):
+                elif(thumby.buttonA.justPressed()):
                     curMsg = ""
 
             # Handle inventory button
-            elif(thumby.buttonB.pressed()):
+            elif(thumby.buttonB.justPressed()):
                 selpos = 0
                 actpos = 1
                 while(not thumby.buttonB.justPressed()):
 
                     # Menu navigation
-                    if(thumby.buttonU.pressed()):
+                    if(thumby.buttonU.justPressed()):
                         selpos = selpos-1
-                        while(thumby.buttonU.pressed()):
-                            pass
-                    elif(thumby.buttonD.pressed()):
+                    elif(thumby.buttonD.justPressed()):
                         selpos = selpos+1
-                        while(thumby.buttonD.pressed()):
-                            pass
                     if(thumby.buttonL.pressed()):
                         actpos = 0
-                        while(thumby.buttonL.pressed()):
-                            pass
                     elif(thumby.buttonR.pressed()):
                         actpos = 1
-                        while(thumby.buttonR.pressed()):
-                            pass
 
                     # Handle item selection
-                    if(thumby.buttonA.pressed()):
+                    if(thumby.buttonA.justPressed()):
 
                         if(actpos == 1):
                             # Equip selected item
@@ -1453,7 +1429,7 @@ while(True):
                             tile = itemtile(player.inventory[selpos])
 
                             # Try to drop the item where the player selected, or explain that something is in the way
-                            if(thumby.buttonU.pressed()):
+                            if(thumby.buttonU.justPressed()):
                                 if(currentRoom.getTile(player.tilex, player.tiley-1).tiletype == 0):
                                     currentRoom.getTile(player.tilex, player.tiley-1).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex, player.tiley-1).tiledata = tile.tiledata
@@ -1462,7 +1438,7 @@ while(True):
                                     curMsg = "dropped"
                                 else:
                                     curMsg = "can't!"
-                            elif(thumby.buttonD.pressed()):
+                            elif(thumby.buttonD.justPressed()):
                                 if(currentRoom.getTile(player.tilex, player.tiley+1).tiletype == 0):
                                     currentRoom.getTile(player.tilex, player.tiley+1).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex, player.tiley+1).tiledata = tile.tiledata
@@ -1471,7 +1447,7 @@ while(True):
                                     curMsg = "dropped"
                                 else:
                                     curMsg = "can't!"
-                            elif(thumby.buttonL.pressed()):
+                            elif(thumby.buttonL.justPressed()):
                                 if(currentRoom.getTile(player.tilex-1, player.tiley).tiletype == 0):
                                     currentRoom.getTile(player.tilex-1, player.tiley).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex-1, player.tiley).tiledata = tile.tiledata
@@ -1480,7 +1456,7 @@ while(True):
                                     curMsg = "dropped"
                                 else:
                                     curMsg = "can't!"
-                            elif(thumby.buttonR.pressed()):
+                            elif(thumby.buttonR.justPressed()):
                                 if(currentRoom.getTile(player.tilex+1, player.tiley).tiletype == 0):
                                     currentRoom.getTile(player.tilex+1, player.tiley).tiletype = tile.tiletype
                                     currentRoom.getTile(player.tilex+1, player.tiley).tiledata = tile.tiledata
@@ -1578,7 +1554,7 @@ while(True):
     while(thumby.buttonA.pressed()):
         pass
 
-    while(not thumby.buttonA.pressed()):
+    while(not thumby.buttonA.justPressed()):
         thumby.display.fill(0)
         thumby.display.drawText("Restart?", 0, 8, 1)
         if(selpos == 0):
