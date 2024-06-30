@@ -79,7 +79,7 @@ signMessages = (
     bytes("Man, I\nhad so\nmuch\ngold...\n...had...", 'ascii'),
     bytes("Hang in\nthere!\n- M.W.", 'ascii'),
     bytes("Happy\ncrawling,\nfellow\nknight.", 'ascii'),
-    bytes("Only 8\ngold for\nan ULTRA\nSWORD!?", 'ascii'),
+    bytes("Only $8\nfor an\nULTRA\nSWORD!?", 'ascii'),
     bytes("Why do\nall these\npotions\ntaste so\nterrible?", 'ascii'),
     bytes("Am I the\nonly\nperson\ndown\nhere?", 'ascii'),
     bytes("This food\ncould be\ncenturies\nold...", 'ascii'),
